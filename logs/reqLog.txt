@@ -10951,3 +10951,4 @@
 2026 01 06	00:50:04	63217e45-4855-4f5c-bcc4-612f91023d04	GET	http://localhost:3000	/posts
 2026 01 06	00:50:04	aff08ac7-db19-46dd-93ad-8541dace1ad4	GET	http://localhost:3000	/refresh
 2026 01 06	00:50:05	6446e2a0-00b2-4bd5-9e5a-7a5acc0e002b	GET	http://localhost:3000	/posts
+2026 01 06	01:42:43	c7522131-8ac0-4595-b182-b35985df6bf9	GET	undefined	/auth/google

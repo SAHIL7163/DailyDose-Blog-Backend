@@ -11,7 +11,9 @@ router.get(
 
 router.get(
   "/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),
+  passport.authenticate("google", {
+    failureRedirect: `${process.env.FRONTEND_URL}/login`,
+  }),
   async (req, res) => {
     // After successful authentication, redirect the user to the returnTo URL stored in session
     // Extract the tokens from the passport callback
