@@ -51,8 +51,7 @@ router.get(
       });
 
       // Redirect the user to the frontend
-      res.redirect("http://localhost:3000/");
-      //res.redirect(`https://blogsite-3gsy.onrender.com`);
+      res.redirect(process.env.FRONTEND_URL);
     } catch (error) {
       console.error("Error handling Google callback:", error);
       // Handle errors if needed
