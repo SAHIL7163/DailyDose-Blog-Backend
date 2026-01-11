@@ -43,15 +43,16 @@ app.use(cookieParser());
 
 app.use(
   session({
-    secret: process.env.GOOGLE_CLIENT_SECRET, 
-    resave: false,
-    saveUninitialized: false,
+    secret: process.env.GOOGLE_CLIENT_SECRET,
+    resave: true, // Recommended for some OAuth configurations
+    saveUninitialized: true, // Ensure session is created before OAuth redirect
     store: MongoStore.create({
       mongoUrl: process.env.DATABASE_URI,
       collectionName: "sessions",
     }),
     cookie: {
-      secure: false,
+      secure: true, // Required for sameSite: 'none'
+      sameSite: "none", // Allow cross-site cookie for redirects
       maxAge: 1000 * 60 * 60 * 24, // 1 day
     },
   })

@@ -13,10 +13,12 @@ const initializePassport = () => {
       },
       async function (googleaccessToken, googlerefreshToken, profile, cb) {
         try {
+          console.log("Google profile received:", profile.emails[0].value);
           // Find or create a user based on the Google profile's id
           let user = await User.findOne({ email: profile.emails[0].value });
 
           if (!user) {
+            console.log("Creating new user for:", profile.emails[0].value);
             // If the user doesn't exist, return an error
             const hashedpwd = await bcrypt.hash(profile.id, 10);
             const roles = { User: 2001 };
@@ -31,6 +33,7 @@ const initializePassport = () => {
           }
           cb(null, user);
         } catch (error) {
+          console.error("Error in Google Strategy verification callback:", error);
           return cb(error);
         }
       }
