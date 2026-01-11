@@ -10,12 +10,18 @@ const initializePassport = () => {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: `${process.env.BACKEND_URL}/auth/google/callback`,
+        proxy: true,
       },
       async function (googleaccessToken, googlerefreshToken, profile, cb) {
         try {
-          console.log("Google profile received:", profile.emails[0].value);
+          if (!profile || !profile.emails || profile.emails.length === 0) {
+            console.error("Google profile missing email:", profile);
+            return cb(new Error("No email found in Google profile"));
+          }
+          const email = profile.emails[0].value;
+          console.log("Google profile received for email:", email);
           // Find or create a user based on the Google profile's id
-          let user = await User.findOne({ email: profile.emails[0].value });
+          let user = await User.findOne({ email: email });
 
           if (!user) {
             console.log("Creating new user for:", profile.emails[0].value);

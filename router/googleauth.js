@@ -23,7 +23,12 @@ router.get(
   async (req, res) => {
     // After successful authentication, redirect the user to the returnTo URL stored in session
     // Extract the tokens from the passport callback
+    console.log("Google callback reached. User:", req.user ? req.user.email : "No user");
     try {
+      if (!req.user) {
+        console.error("Authentication failed: req.user is undefined");
+        return res.status(401).json({ message: "Unauthorized: No user data" });
+      }
       // After successful authentication, generate tokens
       const user = req.user;
       const roles = Object.values(user.roles).filter(Boolean);
