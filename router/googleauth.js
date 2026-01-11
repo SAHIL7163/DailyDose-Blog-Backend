@@ -6,7 +6,13 @@ const jwt = require("jsonwebtoken");
 
 router.get(
   "/",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  (req, res, next) => {
+    const { prevUrl } = req.query;
+    passport.authenticate("google", {
+      scope: ["profile", "email"],
+      state: prevUrl || process.env.FRONTEND_URL,
+    })(req, res, next);
+  }
 );
 
 router.get(
@@ -53,7 +59,8 @@ router.get(
       });
 
       // Redirect the user to the frontend
-      res.redirect(process.env.FRONTEND_URL);
+      const returnTo = req.query.state || process.env.FRONTEND_URL;
+      res.redirect(returnTo);
     } catch (error) {
       console.error("Error handling Google callback:", error);
       // Handle errors if needed
