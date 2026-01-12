@@ -1,7 +1,6 @@
 require("dotenv").config();
 
 const express = require("express");
-const session = require("express-session");
 const app = express();
 const cors = require("cors");
 const corseOptions = require("./Config/corsOptions");
@@ -34,33 +33,14 @@ app.use(credentials);
 app.use(cors(corseOptions));
 
 //built
-app.use(express.urlencoded({extended:false}));    //req.body.username req.body.password.
+app.use(express.urlencoded({ extended: false })); //req.body.username req.body.password.
 
 app.use(express.json());
 
 app.use(cookieParser());
 
-
-app.use(
-  session({
-    secret: process.env.GOOGLE_CLIENT_SECRET,
-    resave: true, // Recommended for some OAuth configurations
-    saveUninitialized: true, // Ensure session is created before OAuth redirect
-    store: MongoStore.create({
-      mongoUrl: process.env.DATABASE_URI,
-      collectionName: "sessions",
-    }),
-    cookie: {
-      secure: true, // Required for sameSite: 'none'
-      sameSite: "none", // Allow cross-site cookie for redirects
-      maxAge: 1000 * 60 * 60 * 24, // 1 day
-    },
-  })
-);
-
+initializePassport();
 app.use(passport.initialize());
-app.use(passport.session());
-initializePassport(passport);
 
 app.use("/public", express.static(path.join(__dirname, "public")));
 
