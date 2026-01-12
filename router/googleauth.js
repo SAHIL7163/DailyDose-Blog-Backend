@@ -4,32 +4,31 @@ const passport = require("passport");
 const User = require("../model/User");
 const jwt = require("jsonwebtoken");
 
-router.get(
-  "/",
-  (req, res, next) => {
-    const { prevUrl } = req.query;
-    passport.authenticate("google", {
-      scope: ["profile", "email"],
-      state: prevUrl || process.env.FRONTEND_URL,
-    })(req, res, next);
-  }
-);
+router.get("/", (req, res, next) => {
+  const { prevUrl } = req.query;
+  return passport.authenticate("google", {
+    scope: ["profile", "email"],
+    state: prevUrl || process.env.FRONTEND_URL,
+  })(req, res, next);
+});
 
 router.get(
   "/callback",
   passport.authenticate("google", {
+    session: false,
     failureRedirect: `${process.env.FRONTEND_URL}/login`,
+    failureMessage: true,
+
   }),
   async (req, res) => {
-    // After successful authentication, redirect the user to the returnTo URL stored in session
-    // Extract the tokens from the passport callback
-    console.log("Google callback reached. User:", req.user ? req.user.email : "No user");
     try {
       if (!req.user) {
-        console.error("Authentication failed: req.user is undefined");
-        return res.status(401).json({ message: "Unauthorized: No user data" });
+        console.error("Authentication failed: req.user is undefined in callback handler");
+        return res.status(401).json({
+          message: "Unauthorized: Passport failed to populate user",
+          query: req.query
+        });
       }
-      // After successful authentication, generate tokens
       const user = req.user;
       const roles = Object.values(user.roles).filter(Boolean);
 
@@ -58,14 +57,15 @@ router.get(
       // Set refresh token as a cookie
       res.cookie("jwt", refreshToken, {
         httpOnly: true,
-        secure: true,
-        sameSite: "None",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
         maxAge: 24 * 60 * 60 * 1000,
       });
 
       // Redirect the user to the frontend
-      const returnTo = req.query.state || process.env.FRONTEND_URL;
-      res.redirect(returnTo);
+      const redirectUrl =
+        (req.query.state || process.env.FRONTEND_URL) + `?token=${accessToken}`;
+      res.redirect(redirectUrl);
     } catch (error) {
       console.error("Error handling Google callback:", error);
       // Handle errors if needed
